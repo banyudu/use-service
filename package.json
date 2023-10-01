@@ -1,0 +1,50 @@
+{
+  "name": "@banyudu/use-service",
+  "version": "0.1.0",
+  "description": "useSWR with custom fetcher",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc --watch",
+    "test": "npm run build && mocha --require ts-node/register --require source-map-support/register --recursive --exit test/**/*.spec.ts",
+    "prepublishOnly": "npm test",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/banyudu/use-service.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/banyudu/use-service/issues"
+  },
+  "homepage": "https://github.com/banyudu/use-service#readme",
+  "devDependencies": {
+    "@types/json-stable-stringify": "^1.0.34",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.6.0",
+    "@types/react": "^18.2.23",
+    "husky": "^8.0.0",
+    "mocha": "^10.2.0",
+    "power-assert": "^1.6.1",
+    "rimraf": "^5.0.1",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.9.1",
+    "ts-standard": "^12.0.2",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@types/power-assert": "^1.5.8",
+    "jotai": "^2.4.3",
+    "json-stable-stringify": "^1.0.2",
+    "nanoid": "^5.0.1",
+    "swr": "^2.2.4"
+  }
+}
