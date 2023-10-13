@@ -3,7 +3,7 @@
  */
 
 import { SWRResponse } from 'swr'
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid/index.browser'
 import { PrimitiveAtom, useAtom } from 'jotai'
 import useService from './useService'
 

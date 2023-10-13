@@ -5,7 +5,7 @@
 import { useCallback, useMemo } from 'react'
 
 import useSWR, { SWRResponse, SWRConfiguration } from 'swr'
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid/index.browser'
 import jsonStableStringify from 'json-stable-stringify'
 
 export const defaultSWROptions: SWRConfiguration = {
