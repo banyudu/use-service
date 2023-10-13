@@ -3,9 +3,9 @@
  */
 
 import { SWRResponse } from 'swr'
-import { nanoid } from 'nanoid/index.browser'
 import { PrimitiveAtom, useAtom } from 'jotai'
 import useService from './useService'
+import { random } from './utils'
 
 type CachedService<Result = any, Params = any> = (params?: Params) => SWRResponse<Result | null> & { refresh: () => void }
 
@@ -21,7 +21,7 @@ const useCachedService = <Result = any, Params = any> (
     const result = innerHook(params, refreshKey)
     return {
       ...result,
-      refresh: () => setRefreshKey(nanoid())
+      refresh: () => setRefreshKey(random())
     }
   }
 }

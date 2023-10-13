@@ -5,8 +5,8 @@
 import { useCallback, useMemo } from 'react'
 
 import useSWR, { SWRResponse, SWRConfiguration } from 'swr'
-import { nanoid } from 'nanoid/index.browser'
 import jsonStableStringify from 'json-stable-stringify'
+import { random } from './utils'
 
 export const defaultSWROptions: SWRConfiguration = {
   shouldRetryOnError: false,
@@ -53,7 +53,7 @@ const useService = <Result = any, Params = any>(
       if (refreshFlag !== null && refreshFlag !== undefined) {
         return refreshFlag
       }
-      return nanoid()
+      return random()
     }, [refreshFlag, stringifyParams])
 
     const innerFetcher = useCallback(async ([_key, params]: any[]) => {
