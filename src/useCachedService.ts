@@ -2,12 +2,15 @@
  * 类似于 useService，但是使用 jotai 缓存
  */
 
-import { SWRResponse } from 'swr'
 import { PrimitiveAtom, useAtom } from 'jotai'
-import useService from './useService'
+import useService, { HookResult } from './useService'
 import { random } from './utils'
 
-type CachedService<Result = any, Params = any> = (params?: Params) => SWRResponse<Result | null> & { refresh: () => void }
+export interface CachedHookResult<Result = any> extends HookResult<Result> {
+  refresh: () => void
+}
+
+type CachedService<Result = any, Params = any> = (params?: Params) => CachedHookResult<Result>
 
 const useCachedService = <Result = any, Params = any> (
   fetcher: (p: Params) => Promise<Result>,
@@ -15,7 +18,7 @@ const useCachedService = <Result = any, Params = any> (
   skip?: (p: Params) => boolean
 ): CachedService<Result, Params> => {
   const innerHook = useService(fetcher, skip)
-  return (params?: Params): SWRResponse<Result | null> & { refresh: () => void } => {
+  return (params?: Params): CachedHookResult => {
     const [refreshKey, setRefreshKey] = useAtom(atom)
 
     const result = innerHook(params, refreshKey)

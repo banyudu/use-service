@@ -44,10 +44,15 @@ export const defaultSWROptions: SWRConfiguration = {
  *  // Math.random 也可用 nanoid / uuid 等生成唯一值的函数替换
  *  const { data: xxxxRes, isValidating: xxxxLoading } = useXxxx({ id: 1 }, refreshFlag)
  */
+
+export interface HookResult<Result = any> extends SWRResponse<Result | null> {
+  wait: (options?: { interval?: number }) => Promise<void>
+}
+
 const useService = <Result = any, Params = any>(
   fetcher: (p: Params) => Promise<Result>,
   skip?: (p: Params) => boolean
-) => (params?: Params, refreshFlag?: string | number): SWRResponse<Result | null> & { wait: (options?: { interval?: number }) => Promise<void> } => {
+) => (params?: Params, refreshFlag?: string | number): HookResult => {
     const stringifyParams = jsonStableStringify(params)
     const key = useMemo(() => {
       if (refreshFlag !== null && refreshFlag !== undefined) {
