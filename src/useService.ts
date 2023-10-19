@@ -2,7 +2,7 @@
  * useService 自定义hook生成器，用于生成与 API 请求相关的 custom hook
  */
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import useSWR, { SWRResponse, SWRConfiguration } from 'swr'
 import jsonStableStringify from 'json-stable-stringify'
@@ -47,7 +47,7 @@ export const defaultSWROptions: SWRConfiguration = {
 const useService = <Result = any, Params = any>(
   fetcher: (p: Params) => Promise<Result>,
   skip?: (p: Params) => boolean
-) => (params?: Params, refreshFlag?: string | number): SWRResponse<Result | null> => {
+) => (params?: Params, refreshFlag?: string | number): SWRResponse<Result | null> & { wait: (options?: { interval?: number }) => Promise<void> } => {
     const stringifyParams = jsonStableStringify(params)
     const key = useMemo(() => {
       if (refreshFlag !== null && refreshFlag !== undefined) {
@@ -63,7 +63,28 @@ const useService = <Result = any, Params = any>(
       const res = await fetcher(params)
       return res
     }, [])
-    return useSWR([key, params], innerFetcher, defaultSWROptions)
+    const result = useSWR([key, params], innerFetcher, defaultSWROptions)
+    const loadingRef = useRef(result.isValidating)
+    useEffect(() => {
+      loadingRef.current = result.isValidating
+    }, [result.isValidating])
+
+    const wait = useCallback(async (options?: { interval?: number }) => {
+      return await new Promise<void>((resolve) => {
+        const interval = options?.interval ?? 50
+        const timer = setInterval(() => {
+          if (!loadingRef.current) {
+            clearInterval(timer)
+            resolve()
+          }
+        }, interval)
+      })
+    }, [loadingRef])
+
+    return {
+      ...result,
+      wait
+    }
   }
 
 export default useService
