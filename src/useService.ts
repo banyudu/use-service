@@ -46,7 +46,7 @@ export const defaultSWROptions: SWRConfiguration = {
  */
 
 export interface HookResult<Result = any> extends SWRResponse<Result | null> {
-  wait: (options?: { interval?: number }) => Promise<void>
+  wait: (options?: { interval?: number }) => Promise<Result | null>
 }
 
 const useService = <Result = any, Params = any>(
@@ -74,13 +74,18 @@ const useService = <Result = any, Params = any>(
       loadingRef.current = result.isValidating
     }, [result.isValidating])
 
+    const dataRef = useRef(result.data)
+    useEffect(() => {
+      dataRef.current = result.data
+    }, [result.data])
+
     const wait = useCallback(async (options?: { interval?: number }) => {
-      return await new Promise<void>((resolve) => {
+      return await new Promise<Result | null>((resolve) => {
         const interval = options?.interval ?? 50
         const timer = setInterval(() => {
           if (!loadingRef.current) {
             clearInterval(timer)
-            resolve()
+            resolve(dataRef.current ?? null)
           }
         }, interval)
       })
