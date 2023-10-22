@@ -52,7 +52,7 @@ export interface HookResult<Result = any> extends SWRResponse<Result | null> {
 const useService = <Result = any, Params = any>(
   fetcher: (p: Params) => Promise<Result>,
   skip?: (p: Params) => boolean
-) => (params?: Params, refreshFlag?: string | number): HookResult => {
+) => (params?: Params, refreshFlag?: string | number): HookResult<Result> => {
     const stringifyParams = jsonStableStringify(params)
     const key = useMemo(() => {
       if (refreshFlag !== null && refreshFlag !== undefined) {
