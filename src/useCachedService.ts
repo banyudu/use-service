@@ -1,8 +1,8 @@
 /**
- * 类似于 useService，但是使用 jotai 缓存
+ * 类似于 useService，但是默认使用缓存，并提供 refresh 方法
  */
 
-import { PrimitiveAtom, useAtom } from 'jotai'
+import { useAtom, atom } from 'jotai'
 import useService, { HookResult } from './useService'
 import { random } from './utils'
 
@@ -14,12 +14,12 @@ type CachedService<Result = any, Params = any> = (params?: Params) => CachedHook
 
 const useCachedService = <Result = any, Params = any> (
   fetcher: (p: Params) => Promise<Result>,
-  atom: PrimitiveAtom<string>,
   skip?: (p: Params) => boolean
 ): CachedService<Result, Params> => {
   const innerHook = useService(fetcher, skip)
+  const refreshAtom = atom<string>(random())
   return (params?: Params): CachedHookResult => {
-    const [refreshKey, setRefreshKey] = useAtom(atom)
+    const [refreshKey, setRefreshKey] = useAtom(refreshAtom)
 
     const result = innerHook(params, refreshKey)
     return {
