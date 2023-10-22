@@ -2,7 +2,7 @@
  * 类似于 useService，但是默认使用缓存，并提供 refresh 方法
  */
 
-import { useAtom, atom } from 'jotai'
+import { useState } from 'react'
 import useService, { HookResult } from './useService'
 import { random } from './utils'
 
@@ -17,9 +17,8 @@ const useCachedService = <Result = any, Params = any> (
   skip?: (p: Params) => boolean
 ): CachedService<Result, Params> => {
   const innerHook = useService(fetcher, skip)
-  const refreshAtom = atom<string>(random())
   return (params?: Params): CachedHookResult => {
-    const [refreshKey, setRefreshKey] = useAtom(refreshAtom)
+    const [refreshKey, setRefreshKey] = useState(random())
 
     const result = innerHook(params, refreshKey)
     return {
