@@ -53,7 +53,8 @@ const useService = <Result = any, Params = any>(
   fetcher: (p: Params) => Promise<Result>,
   skip?: (p: Params) => boolean
 ) => (params?: Params, refreshFlag?: string | number): HookResult<Result> => {
-    const stringifyParams = jsonStableStringify(params)
+    const stringifyParams = useMemo(() => jsonStableStringify(params), [params])
+
     const key = useMemo(() => {
       if (refreshFlag !== null && refreshFlag !== undefined) {
         return refreshFlag
