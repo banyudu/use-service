@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@types/power-assert": "^1.5.8",
+    "jotai": "^2.4.3",
     "json-stable-stringify": "^1.0.2",
     "nanoid": "^5.0.1",
     "swr": "^2.2.4"
