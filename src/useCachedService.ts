@@ -7,6 +7,7 @@ import useService, { HookResult } from './useService'
 import { random } from './utils'
 import { atom, useAtom } from 'jotai'
 import jsonStableStringify from 'json-stable-stringify'
+import { SWRConfiguration } from 'swr'
 
 export interface CachedHookResult<Result = any> extends HookResult<Result> {
   refresh: () => void
@@ -16,9 +17,10 @@ type CachedService<Result = any, Params = any> = (params?: Params) => CachedHook
 
 const useCachedService = <Result = any, Params = any> (
   fetcher: (p: Params) => Promise<Result>,
-  skip?: (p: Params) => boolean
+  skip?: (p: Params) => boolean,
+  swrOptions?: SWRConfiguration
 ): CachedService<Result, Params> => {
-  const innerHook = useService(fetcher, skip)
+  const innerHook = useService(fetcher, skip, swrOptions)
   // const refreshKeyAtom = useMemo(() => atom<string>(random()), [])
   const refreshKeyMapAtom = atom<Record<string, string>>({})
   return (params?: Params): CachedHookResult => {

@@ -51,7 +51,8 @@ export interface HookResult<Result = any> extends SWRResponse<Result | null> {
 
 const useService = <Result = any, Params = any>(
   fetcher: (p: Params) => Promise<Result>,
-  skip?: (p: Params) => boolean
+  skip?: (p: Params) => boolean,
+  swrOptions?: SWRConfiguration
 ) => (params?: Params, refreshFlag?: string | number): HookResult<Result> => {
     const stringifyParams = useMemo(() => jsonStableStringify(params), [params])
 
@@ -69,7 +70,7 @@ const useService = <Result = any, Params = any>(
       const res = await fetcher(params)
       return res
     }, [])
-    const result = useSWR([key, params], innerFetcher, defaultSWROptions)
+    const result = useSWR([key, params], innerFetcher, { ...defaultSWROptions, ...swrOptions })
     const loadingRef = useRef(result.isValidating)
     useEffect(() => {
       loadingRef.current = result.isValidating
