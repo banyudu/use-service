@@ -53,50 +53,50 @@ const useService = <Result = any, Params = any>(
   fetcher: (p: Params) => Promise<Result>,
   skip?: (p: Params) => boolean,
   swrOptions?: SWRConfiguration
-) => (params?: Params, refreshFlag?: string | number): HookResult<Result> => {
-    const stringifyParams = useMemo(() => jsonStableStringify(params), [params])
+) => <RealResult = Result>(params?: Params, refreshFlag?: string | number): HookResult<RealResult> => {
+  const stringifyParams = useMemo(() => jsonStableStringify(params), [params])
 
-    const key = useMemo(() => {
-      if (refreshFlag !== null && refreshFlag !== undefined) {
-        return refreshFlag
-      }
-      return random()
-    }, [refreshFlag, stringifyParams])
-
-    const innerFetcher = useCallback(async ([_key, params]: any[]) => {
-      if ((skip != null) && !skip(params)) {
-        return null
-      }
-      const res = await fetcher(params)
-      return res
-    }, [])
-    const result = useSWR([key, params], innerFetcher, { ...defaultSWROptions, ...swrOptions })
-    const loadingRef = useRef(result.isValidating)
-    useEffect(() => {
-      loadingRef.current = result.isValidating
-    }, [result.isValidating])
-
-    const dataRef = useRef(result.data)
-    useEffect(() => {
-      dataRef.current = result.data
-    }, [result.data])
-
-    const wait = useCallback(async (options?: { interval?: number }) => {
-      return await new Promise<Result | null>((resolve) => {
-        const interval = options?.interval ?? 50
-        const timer = setInterval(() => {
-          if (!loadingRef.current) {
-            clearInterval(timer)
-            resolve(dataRef.current ?? null)
-          }
-        }, interval)
-      })
-    }, [loadingRef])
-
-    return {
-      ...result,
-      wait
+  const key = useMemo(() => {
+    if (refreshFlag !== null && refreshFlag !== undefined) {
+      return refreshFlag
     }
+    return random()
+  }, [refreshFlag, stringifyParams])
+
+  const innerFetcher = useCallback(async ([_key, params]: any[]) => {
+    if ((skip != null) && !skip(params)) {
+      return null
+    }
+    const res = await fetcher(params)
+    return res as RealResult
+  }, [])
+  const result = useSWR<RealResult | null>([key, params], innerFetcher, { ...defaultSWROptions, ...swrOptions })
+  const loadingRef = useRef(result.isValidating)
+  useEffect(() => {
+    loadingRef.current = result.isValidating
+  }, [result.isValidating])
+
+  const dataRef = useRef(result.data)
+  useEffect(() => {
+    dataRef.current = result.data
+  }, [result.data])
+
+  const wait = useCallback(async (options?: { interval?: number }) => {
+    return await new Promise<RealResult | null>((resolve) => {
+      const interval = options?.interval ?? 50
+      const timer = setInterval(() => {
+        if (!loadingRef.current) {
+          clearInterval(timer)
+          resolve(dataRef.current ?? null)
+        }
+      }, interval)
+    })
+  }, [loadingRef])
+
+  return {
+    ...result,
+    wait
   }
+}
 
 export default useService
