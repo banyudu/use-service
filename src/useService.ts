@@ -63,13 +63,17 @@ const useService = <Result = any, Params = any>(
     return random()
   }, [refreshFlag, stringifyParams])
 
+  // caution: skip may be a react hook
+  const shouldSkip = skip?.(params as any) === false
+
   const innerFetcher = useCallback(async ([_key, params]: any[]) => {
-    if ((skip != null) && !skip(params)) {
+    if (shouldSkip) {
       return null
     }
     const res = await fetcher(params)
     return res as RealResult
-  }, [])
+  }, [shouldSkip])
+
   const result = useSWR<RealResult | null>([key, params], innerFetcher, { ...defaultSWROptions, ...swrOptions })
   const loadingRef = useRef(result.isValidating)
   useEffect(() => {
