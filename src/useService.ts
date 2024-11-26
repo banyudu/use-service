@@ -49,6 +49,8 @@ export interface HookResult<Result = any> extends SWRResponse<Result | null> {
   wait: (options?: { interval?: number }) => Promise<Result | null>
 }
 
+const delimiter = '#^_^#'
+
 const useService = <Result = any, Params = any>(
   fetcher: (p: Params) => Promise<Result>,
   skip?: (p: Params) => boolean,
@@ -56,15 +58,15 @@ const useService = <Result = any, Params = any>(
 ) => <RealResult = Result>(params?: Params, refreshFlag?: string | number): HookResult<RealResult> => {
   const stringifyParams = useMemo(() => jsonStableStringify(params), [params])
 
-  const key = useMemo(() => {
-    if (refreshFlag !== null && refreshFlag !== undefined) {
-      return refreshFlag
-    }
-    return random()
-  }, [refreshFlag, stringifyParams])
-
   // caution: skip may be a react hook
   const shouldSkip = skip?.(params as any) === false
+
+  const key = useMemo(() => {
+    if (refreshFlag !== null && refreshFlag !== undefined) {
+      return [refreshFlag, shouldSkip].join(delimiter)
+    }
+    return random()
+  }, [refreshFlag, stringifyParams, shouldSkip])
 
   const innerFetcher = useCallback(async ([_key, params]: any[]) => {
     if (shouldSkip) {
