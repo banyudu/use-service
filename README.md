@@ -2,7 +2,7 @@
 
 useSWR with custom fetcher
 
-useService buid on top of useSWR, with custom fetcher and skip function
+useService buid on top of useSWR, with custom fetcher and validate function
 
 
 ## Install
