@@ -1,5 +1,5 @@
 /**
- * 类似于 useService，但是默认使用缓存，并提供 refresh 方法
+ * Works like useService, but use cache by default and provide refresh method
  */
 
 import { useMemo } from 'react'
@@ -17,10 +17,10 @@ type CachedService<Result = any, Params = any> = (params?: Params) => CachedHook
 
 const useCachedService = <Result = any, Params = any> (
   fetcher: (p: Params) => Promise<Result>,
-  skip?: (p: Params) => boolean,
+  validate?: (p: Params) => boolean,
   swrOptions?: SWRConfiguration
 ): CachedService<Result, Params> => {
-  const innerHook = useService(fetcher, skip, swrOptions)
+  const innerHook = useService(fetcher, validate, swrOptions)
   // const refreshKeyAtom = useMemo(() => atom<string>(random()), [])
   const refreshKeyMapAtom = atom<Record<string, string>>({})
   return (params?: Params): CachedHookResult => {

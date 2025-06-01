@@ -1,5 +1,5 @@
 /**
- * useService 自定义hook生成器，用于生成与 API 请求相关的 custom hook
+ * useService custom hook generator for creating hooks related to API requests
  */
 
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -18,12 +18,12 @@ export const defaultSWROptions: SWRConfiguration = {
 }
 
 /**
- * useService 自定义hook生成器，用于生成与 API 请求相关的 custom hook
- * @param fetcher 请求函数，会自动推导其请求参数类型和返回结果类型
- * @param skip 是否跳过请求的判断函数，返回 true 时跳过请求，一般用于参数不满足时不发起请求，避免无效请求发到后端
- * @returns 自定义hook
+ * useService custom hook generator for creating hooks related to API requests
+ * @param fetcher Request function, automatically infers its parameter types and return result types
+ * @param validate Function to determine whether to skip the request, returns false to skip the request, typically used to avoid sending invalid requests to the backend when parameters are not satisfied
+ * @returns Custom hook
  *
- *  自定义hook用法示例：
+ *  Custom hook usage example:
  *
  *  const fetcher = async (params: XxxxReq): Promise<XxxxResp> => {
  *    return axios.post('/api/xxxx', params)
@@ -33,15 +33,15 @@ export const defaultSWROptions: SWRConfiguration = {
  *
  *  export default useXxxx
  *
- *  // 业务页面
+ *  // Business page
  *
  *  const { data: xxxxRes, isValidating: xxxxLoading } = useXxxx({ id: 1 })
  *
- *  @remark 默认情况下，useXxxx 会根据请求参数的变化自动发起请求，如果需要手动触发请求，可以传入 refreshFlag 参数，如：
+ *  @remark By default, useXxxx will automatically initiate requests based on parameter changes. If manual request triggering is needed, you can pass a refreshFlag parameter, like:
  *  const [refreshFlag, setRefreshFlag] = useState(Math.random())
  *
- *  // 当需要重新请求时，setRefreshFlag(Math.random())
- *  // Math.random 也可用 nanoid / uuid 等生成唯一值的函数替换
+ *  // When you need to re-request, setRefreshFlag(Math.random())
+ *  // Math.random can also be replaced with nanoid / uuid or other functions that generate unique values
  *  const { data: xxxxRes, isValidating: xxxxLoading } = useXxxx({ id: 1 }, refreshFlag)
  */
 
@@ -53,13 +53,13 @@ const delimiter = '#^_^#'
 
 const useService = <Result = any, Params = any>(
   fetcher: (p: Params) => Promise<Result>,
-  skip?: (p: Params) => boolean,
+  validate?: (p: Params) => boolean,
   swrOptions?: SWRConfiguration
 ) => <RealResult = Result>(params?: Params, refreshFlag?: string | number): HookResult<RealResult> => {
   const stringifyParams = useMemo(() => jsonStableStringify(params), [params])
 
-  // caution: skip may be a react hook
-  const shouldSkip = skip?.(params as any) === false
+  // caution: validate may be a react hook
+  const shouldSkip = validate?.(params as any) === false
 
   const key = useMemo(() => {
     if (refreshFlag !== null && refreshFlag !== undefined) {
