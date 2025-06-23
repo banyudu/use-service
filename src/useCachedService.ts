@@ -2,7 +2,7 @@
  * Works like useService, but use cache by default and provide refresh method
  */
 
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import useService, { HookResult } from './useService'
 import { random } from './utils'
 import { atom, useAtom } from 'jotai'
@@ -43,13 +43,17 @@ const useCachedService = <Result = any, Params = any> (
 
     // const [refreshKey, setRefreshKey] = useAtom(refreshKeyMapAtom)
 
-    const result = innerHook(params, refreshKey)
-    return {
-      ...result,
-      refresh: () => setRefreshKeyMap(old => ({
+    const refresh = useCallback(() => {
+      setRefreshKeyMap(old => ({
         ...old,
         [stringifyParams]: random()
       }))
+    }, [stringifyParams, setRefreshKeyMap])
+
+    const result = innerHook(params, refreshKey)
+    return {
+      ...result,
+      refresh
     }
   }
 }
